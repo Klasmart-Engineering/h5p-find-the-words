@@ -184,3 +184,15 @@
   display: inline-block;
   margin: 0;
 }
+
+.h5p-find-the-words .dom-canvas-drawing-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.h5p-find-the-words .dom-drawing-marker {
+  stroke: rgb(107, 177, 125);
+  stroke-opacity: 0.4;
+  stroke-linecap: round;
+}

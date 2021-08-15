@@ -379,27 +379,25 @@
   /**
    * mouseMoveEventHandler.
    * @param {Object} e Event Object.
-   * @param {HTMLelement} canvas Html5 Canvas Element.
+   * @param {HTMLelement} drawingContainer SVG Element.
    * @param {Object[]} srcPos Position from which the movement started.
    * @param {number} eSize  Current element size.
    */
-  const mouseMoveEventHandler = function (e, canvas, srcPos, eSize) {
-    const offsetTop = ($(canvas).offset().top > eSize * 0.75) ? Math.floor(eSize * 0.75) : $(canvas).offset().top;
-    const desX = e.pageX - $(canvas).offset().left;
+  const mouseMoveEventHandler = function (e, drawingContainer, srcPos, eSize) {
+    const offsetTop = ($(drawingContainer).offset().top > eSize * 0.75) ? Math.floor(eSize * 0.75) : $(drawingContainer).offset().top;
+    const desX = e.pageX - $(drawingContainer).offset().left;
     const desY = e.pageY - Math.abs(offsetTop);
-    const context = canvas.getContext('2d');
 
-    // Draw the current marking
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    context.fillStyle = 'rgba(107,177,125,0.3)';
-    context.beginPath();
-    context.lineCap = 'round';
-    context.moveTo(srcPos[0] - (eSize / 8), srcPos[1] + (offsetTop / 8));
-    context.strokeStyle = 'rgba(107,177,125,0.4)';
-    context.lineWidth = Math.floor(eSize / 2);
-    context.lineTo(desX - (eSize / 8), desY + (offsetTop / 8));
-    context.stroke();
-    context.closePath();
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.classList.add('dom-drawing-marker');
+    line.setAttribute('stroke-width', Math.floor(eSize / 2));
+    line.setAttribute('x1', srcPos[0] - (eSize / 8));
+    line.setAttribute('y1', srcPos[1] + (offsetTop / 8));
+    line.setAttribute('x2', desX - (eSize / 8));
+    line.setAttribute('y2', desY + (offsetTop / 8));
+
+    drawingContainer.innerHTML = '';
+    drawingContainer.appendChild(line);
   };
 
   /*
@@ -421,7 +419,6 @@
     const x = e.pageX - $(canvas).offset().left;
     const y = e.pageY - Math.abs(offsetTop);
     const clickEnd = calculateCordinates(x, y, elementSize);
-    const context = canvas.getContext('2d');
 
     if ((Math.abs(clickEnd[0] - x) < 20) && (Math.abs(clickEnd[1] - y) < 15)) {
       // Drag ended within permissible range
@@ -432,9 +429,6 @@
       };
     }
 
-    // Clear if there any markings started
-    context.closePath();
-    context.clearRect(0, 0, canvas.width, canvas.height);
     return wordObject;
   };
 
@@ -501,6 +495,7 @@
     // set the output puzzle
     this.wordGrid = wordGrid;
 
+    // Grid with characters
     this.canvas = document.createElement('div');
     this.canvas.classList.add('dom-canvas-grid');
 
@@ -513,6 +508,10 @@
         this.canvas.appendChild(cell);
       }
     }
+
+    // Container where marker is drawn on
+    this.drawingContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    this.drawingContainer.classList.add('dom-canvas-drawing-container');
   };
 
   /**
@@ -699,8 +698,12 @@
     }
     that.$container.append(this.canvas);
 
+    //
     this.$outputCanvas = $('<canvas class="canvas-element" height="' + that.canvasHeight + 'px" width="' + that.canvasWidth + 'px"/>').appendTo(that.$container);
-    this.$drawingCanvas = $('<canvas id="drawing-canvas" class="canvas-element" height="' + that.canvasHeight + 'px" width="' + that.canvasWidth + 'px"/>').appendTo(that.$container);
+
+    this.drawingContainer.style.width = this.canvas.style.width;
+    this.drawingContainer.style.height = this.canvas.style.height;
+    that.$container.append(this.drawingContainer);
 
     let clickStart = [];
     let isDragged = false;
@@ -710,19 +713,19 @@
       //TODO: need to implement for a11y
     }, false);
 
-    this.$drawingCanvas[0].addEventListener('touchstart', function (event) {
+    this.drawingContainer.addEventListener('touchstart', function (event) {
       touchHandler(event);
     }, false);
 
-    this.$drawingCanvas[0].addEventListener('touchmove', function (event) {
+    this.drawingContainer.addEventListener('touchmove', function (event) {
       touchHandler(event);
     }, false);
 
-    this.$drawingCanvas[0].addEventListener('touchend', function (event) {
+    this.drawingContainer.addEventListener('touchend', function (event) {
       touchHandler(event);
     }, false);
 
-    this.$drawingCanvas.on('mousedown', function (event) {
+    $(this.drawingContainer).on('mousedown', function (event) {
       if (that.options.gridActive) {
         if (!clickMode) {
           that.enableDrawing = true;
@@ -732,7 +735,7 @@
       }
     });
 
-    this.$drawingCanvas.on('mouseup', function (event) {
+    $(this.drawingContainer).on('mouseup', function (event) {
       if (that.enableDrawing) {
         if (isDragged || clickMode) {
           if (clickMode) {
@@ -778,25 +781,16 @@
         }
         else if (!clickMode) {
           clickMode = true;
-          const offsetTop = (that.$container.offset().top > that.elementSize * 0.75) ? Math.floor(that.elementSize * 0.75) : that.$container.offset().top;
-          const context = that.$drawingCanvas[0].getContext('2d');
-          //drawing the dot on initial click
-          context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-          context.lineWidth = Math.floor(that.elementSize / 2);
-          context.strokeStyle = 'rgba(107,177,125,0.9)';
-          context.fillStyle = 'rgba(107,177,125,0.3)';
-          context.beginPath();
-          context.arc(clickStart[0] - (that.elementSize / 8), clickStart[1] + Math.floor(offsetTop / 8), that.elementSize / 4, 0, 2 * Math.PI);
-          context.fill();
-          context.closePath();
         }
+
+        that.drawingContainer.innerHTML = '';
       }
     });
 
-    this.$drawingCanvas.on('mousemove', function (event) {
+    $(this.drawingContainer).on('mousemove', function (event) {
       if (that.enableDrawing ) {
         isDragged = true;
-        mouseMoveEventHandler(event, this, clickStart, that.elementSize);
+        mouseMoveEventHandler(event, that.drawingContainer, clickStart, that.elementSize);
       }
     });
   };
