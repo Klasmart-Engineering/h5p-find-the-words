@@ -500,6 +500,19 @@
 
     // set the output puzzle
     this.wordGrid = wordGrid;
+
+    this.canvas = document.createElement('div');
+    this.canvas.classList.add('dom-canvas-grid');
+
+    for (let row = 0; row < this.wordGrid.length; row++) {
+      for (let col = 0; col < this.wordGrid[0].length; col++) {
+        const cell = document.createElement('div');
+
+        cell.classList.add('dom-canvas-grid-cell');
+        cell.innerHTML = this.wordGrid[row][col].toUpperCase();
+        this.canvas.appendChild(cell);
+      }
+    }
   };
 
   /**
@@ -668,21 +681,26 @@
     const marginResp = (Math.floor(that.elementSize / 8) < margin) ? (Math.floor(that.elementSize / 8)) : margin;
     const offsetTop = (that.$container.offset().top > that.elementSize * 0.75) ? Math.floor(that.elementSize * 0.75) : that.$container.offset().top;
 
-    this.$gridCanvas = $('<canvas id="grid-canvas" class="canvas-element" height="' + that.canvasHeight + 'px" width="' + that.canvasWidth + 'px" />').appendTo(that.$container);
+    /*
+     * Recompute the cell style to match original implementation
+     * It's unnecessary to recreate the $container contents here all the
+     * time, bit that's part of the original implementation. Not changing
+     * this now.
+     */
+    this.canvas.style.width = `${that.canvasWidth}px`;
+    this.canvas.style.height = `${that.canvasHeight}px`;
+    this.canvas.style.fontSize = `${that.elementSize / 3}px`;
+    for (let i = 0; i < this.wordGrid.length * this.wordGrid[0].length; i++) {
+      const cell = this.canvas.childNodes[i];
+      cell.style.width = `${that.canvasWidth / this.wordGrid[0].length}px`;
+      cell.style.height = `${that.canvasHeight / this.wordGrid.length}px`;
+      cell.style.paddingLeft = `${2 * marginResp}px`;
+      cell.style.paddingTop = `${offsetTop - ((that.$container.offset().top > that.elementSize * 0.75) ? 16 : 18)}px`;
+    }
+    that.$container.append(this.canvas);
+
     this.$outputCanvas = $('<canvas class="canvas-element" height="' + that.canvasHeight + 'px" width="' + that.canvasWidth + 'px"/>').appendTo(that.$container);
     this.$drawingCanvas = $('<canvas id="drawing-canvas" class="canvas-element" height="' + that.canvasHeight + 'px" width="' + that.canvasWidth + 'px"/>').appendTo(that.$container);
-
-    const ctx1 = this.$gridCanvas[0].getContext('2d');
-    const offset = that.$container.offset();
-
-    ctx1.clearRect(offset.left, offset.top, that.canvasWidth, that.canvasHeight);
-    ctx1.font = (that.elementSize / 3 ) + 'px sans-serif';
-
-    that.wordGrid.forEach(function (row, index1) {
-      row.forEach(function (element, index2) {
-        ctx1.fillText(element.toUpperCase(), index2 * that.elementSize + 2 * marginResp, index1 * that.elementSize + (offsetTop) );
-      });
-    });
 
     let clickStart = [];
     let isDragged = false;

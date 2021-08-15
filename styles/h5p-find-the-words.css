@@ -174,3 +174,13 @@
 .h5p-find-the-words  em::before {
   margin-right: 8px;
 }
+
+.h5p-find-the-words .dom-canvas-grid {
+  font-family: sans-serif;
+}
+
+.h5p-find-the-words .dom-canvas-grid .dom-canvas-grid-cell {
+  box-sizing: border-box;
+  display: inline-block;
+  margin: 0;
+}
