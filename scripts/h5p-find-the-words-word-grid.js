@@ -512,34 +512,29 @@
     // Container where marker is drawn on
     this.drawingContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.drawingContainer.classList.add('dom-canvas-drawing-container');
+
+    // Container where results are put
+    this.outputContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    this.outputContainer.classList.add('dom-canvas-output-container');
   };
 
   /**
    * markWord - mark the word on the output canvas (permanent).
+   * The computation of the SVG path feels a little wacky, but it uses what
+   * it previously got from the original canvas implementation. Could probably
+   * be refactored to be made simpler.
    * @param {Object} wordParams
    */
   FindTheWords.WordGrid.prototype.markWord = function (wordParams) {
     const dirKey = wordParams['directionKey'];
     const clickStart = wordParams['start'];
     const clickEnd = wordParams['end'];
-    const context = this.$outputCanvas[0].getContext('2d');
     const offsetTop = (this.$container.offset().top > this.elementSize * 0.75) ? Math.floor(this.elementSize * 0.75) * (-1) : this.$container.offset().top;
     const topRadius = Math.floor(this.elementSize / 8);
     const bottomRadius = Math.abs(Math.floor(offsetTop / 8));
     const lineWidth = Math.floor(this.elementSize / 4);
 
     let startingAngle;
-
-    // set the drawing property values
-    context.lineWidth = 2;
-    context.strokeStyle = 'rgba(107,177,125,0.9)';
-    context.fillStyle = 'rgba(107,177,125,0.3)';
-
-    if (!this.options.gridActive) {
-      context.strokeStyle = 'rgba(51, 102, 255,0.9)';
-      context.fillStyle = 'rgba(51, 102, 255,0.1)';
-      context.setLineDash([8, 4]);
-    }
 
     // find the arc starting angle depending on the direction
     switch (dirKey) {
@@ -577,13 +572,48 @@
       }
     }
 
-    // start drawing
-    context.beginPath();
-    context.arc(clickStart[0] - topRadius, clickStart[1] + bottomRadius, lineWidth, startingAngle, startingAngle + (Math.PI));
-    context.arc(clickEnd[0] - topRadius, clickEnd[1] + bottomRadius, lineWidth, startingAngle + (Math.PI), startingAngle + (2 * Math.PI));
-    context.closePath();
-    context.stroke();
-    context.fill();
+    // Create marker as SVG
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    marker.classList.add(`${this.options.gridActive ? 'marker-answer' : 'marker-solution'}`);
+    marker.setAttribute('d', this.computeSVGPath(
+      { x: clickStart[0] - topRadius, y: clickStart[1] + bottomRadius },
+      { x: clickEnd[0] - topRadius, y: clickEnd[1] + bottomRadius },
+      lineWidth,
+      startingAngle
+    ));
+    this.outputContainer.appendChild(marker);
+  };
+
+  /**
+   * Compute SVG path for marker.
+   * @param {object} start Start coordinates.
+   * @param {object} end End coordinates.
+   * @param {number} radius Radius of marker.
+   * @param {angle} angle Angle (in radians) of marker.
+   */
+  FindTheWords.WordGrid.prototype.computeSVGPath = function (start, end, radius, angle) {
+    // Points for path
+    const p1 = this.computeCoordinateCenterOffset(start.x, start.y, radius, angle + Math.PI);
+    const p2 = this.computeCoordinateCenterOffset(start.x, start.y, radius, angle);
+    const p3 = this.computeCoordinateCenterOffset(end.x, end.y, radius, angle + 2 * Math.PI);
+    const p4 = this.computeCoordinateCenterOffset(end.x, end.y, radius, angle + Math.PI);
+
+    return `M ${p1.x} ${p1.y} A ${radius} ${radius} 0 0 0 ${p2.x} ${p2.y} L  ${p3.x} ${p3.y} A ${radius} ${radius} 0 0 0 ${p4.x} ${p4.y} Z`;
+  };
+
+  /**
+   * Compute offset for center coordinat to place circle's arc.
+   * @param {number} centerX x coordinate of center.
+   * @param {number} centerY y coordinate of center.
+   * @param {number} radius Radius of circle.
+   * @param {number} angleInRadians Angle for offset.
+   * @return {object} Coordinates on circle's arc.
+   */
+  FindTheWords.WordGrid.prototype.computeCoordinateCenterOffset = function (centerX, centerY, radius, angleInRadians) {
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
   };
 
   /**
@@ -696,13 +726,18 @@
       cell.style.paddingLeft = `${2 * marginResp}px`;
       cell.style.paddingTop = `${offsetTop - ((that.$container.offset().top > that.elementSize * 0.75) ? 16 : 18)}px`;
     }
-    that.$container.append(this.canvas);
 
-    //
-    this.$outputCanvas = $('<canvas class="canvas-element" height="' + that.canvasHeight + 'px" width="' + that.canvasWidth + 'px"/>').appendTo(that.$container);
+    // Found words
+    this.outputContainer.style.width = this.canvas.style.width;
+    this.outputContainer.style.height = this.canvas.style.height;
+    this.outputContainer.innerHTML = '';
 
+    // Drawing marker
     this.drawingContainer.style.width = this.canvas.style.width;
     this.drawingContainer.style.height = this.canvas.style.height;
+
+    that.$container.append(this.canvas);
+    that.$container.append(this.outputContainer);
     that.$container.append(this.drawingContainer);
 
     let clickStart = [];
@@ -783,6 +818,7 @@
           clickMode = true;
         }
 
+        // Clear drawing container
         that.drawingContainer.innerHTML = '';
       }
     });
