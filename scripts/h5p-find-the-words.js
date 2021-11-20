@@ -94,23 +94,8 @@ H5P.FindTheWords = (function ($, UI) {
       if (this.options.behaviour.showVocabulary) {
         if (currentVocMod !== this.isVocModeBlock ) {
           this.vocabulary.setMode(this.isVocModeBlock);
-          if (this.isVocModeBlock) {
-            this.$puzzleContainer.removeClass('puzzle-inline').addClass('puzzle-block');
-          }
-          else {
-            //initial update has to be done manually
-            this.$playArea.css({'width': parseInt(this.$gameContainer.width()) + VOCABULARY_INLINE_WIDTH});
-            this.$puzzleContainer.removeClass('puzzle-block').addClass('puzzle-inline');
-          }
+          this.$gameContainer.toggleClass('column-view', this.isVocModeBlock);
         }
-      }
-
-      // Make the playarea just to fit its content
-      if (! this.isVocModeBlock) {
-        this.$playArea.css({'width': parseInt(this.$gameContainer.width()) + 2});
-      }
-      else {
-        this.$playArea.css({'width': parseInt(this.$puzzleContainer.width()) + 2});
       }
     });
   }
