@@ -3,6 +3,7 @@ H5P.FindTheWords = (function ($, UI) {
   const ELEMENT_MAX_SIZE = 64; // PX
   const MARGIN = 8; //PX
   const VOCABULARY_INLINE_WIDTH = 200;// PX
+  const CHAR_SPACING_FACTOR = 0.66;
 
   /**
    * FindTheWords.
@@ -53,7 +54,8 @@ H5P.FindTheWords = (function ($, UI) {
       preferOverlap: options.behaviour.preferOverlap,
       vocabulary: this.options.vocabulary,
       gridActive: true,
-      fillPool: this.options.behaviour.fillPool
+      fillPool: this.options.behaviour.fillPool,
+      charSpacingFactor: CHAR_SPACING_FACTOR
     };
 
     this.grid = new FindTheWords.WordGrid(this.gridParams);
@@ -220,6 +222,12 @@ H5P.FindTheWords = (function ($, UI) {
     else {
       this.elementSize = ELEMENT_MAX_SIZE;
     }
+
+    /*
+     * Decrease space between chars, will require to adjust factor for font size
+     * and for highlights.
+     */
+    this.elementSize * CHAR_SPACING_FACTOR;
   };
 
   /**
