@@ -226,8 +226,7 @@ H5P.FindTheWords = (function ($, UI) {
    * setVocabularyMode - set vocabulary mode (either inline or block).
    */
   FindTheWords.prototype.setVocabularyMode = function () {
-    const gridCol = this.grid.wordGrid[0].length;
-    this.isVocModeBlock = (this.$container.width() - (gridCol * this.elementSize + 2 * MARGIN) > VOCABULARY_INLINE_WIDTH) ? false : true;
+    this.isVocModeBlock = this.$container.width() - this.$puzzleContainer.width() <= VOCABULARY_INLINE_WIDTH;
   };
 
   /**
@@ -418,7 +417,6 @@ H5P.FindTheWords = (function ($, UI) {
       this.grid.appendTo(this.$puzzleContainer, this.elementSize );
       this.$puzzleContainer.appendTo(this.$gameContainer);
       if (this.options.behaviour.showVocabulary) {
-        this.setVocabularyMode();
         this.vocabulary.appendTo(this.$vocabularyContainer, this.isVocModeBlock);
         this.$vocabularyContainer.appendTo(this.$gameContainer);
       }
