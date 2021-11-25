@@ -2,7 +2,7 @@ H5P.FindTheWords = (function ($, UI) {
   const ELEMENT_MIN_SIZE = 32; // PX
   const ELEMENT_MAX_SIZE = 64; // PX
   const MARGIN = 8; //PX
-  const VOCABULARY_INLINE_WIDTH = 200;// PX
+  const VOCABULARY_INLINE_WIDTH = 250;// PX
   const CHAR_SPACING_FACTOR = 0.66;
 
   /**
@@ -222,12 +222,6 @@ H5P.FindTheWords = (function ($, UI) {
     else {
       this.elementSize = ELEMENT_MIN_SIZE;
     }
-
-    /*
-     * Decrease space between chars, will require to adjust factor for font size
-     * and for highlights.
-     */
-    this.elementSize * CHAR_SPACING_FACTOR;
   };
 
   /**
@@ -417,6 +411,8 @@ H5P.FindTheWords = (function ($, UI) {
    * @param {H5P.jQuery} $container Description.
    */
   FindTheWords.prototype.attach = function ($container) {
+    const that = this;
+
     this.$container = $container.addClass('h5p-find-the-words');
     this.triggerXAPI('attempted');
 
@@ -451,7 +447,8 @@ H5P.FindTheWords = (function ($, UI) {
 
     this.grid.drawGrid();
     this.registerGridEvents();
-    this.trigger('resize');
+
+    that.trigger('resize');
   };
 
   return FindTheWords;
