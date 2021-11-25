@@ -705,27 +705,26 @@
    * drawGrid - draw the letter on the canvas element provided.
    * @param {number} margin Description.
    */
-  FindTheWords.WordGrid.prototype.drawGrid = function (margin) {
+  FindTheWords.WordGrid.prototype.drawGrid = function () {
     const that = this;
-
-    const marginResp = (Math.floor(that.elementSize / 8) < margin) ? (Math.floor(that.elementSize / 8)) : margin;
-    const offsetTop = (that.$container.offset().top > that.elementSize * 0.75) ? Math.floor(that.elementSize * 0.75) : that.$container.offset().top;
 
     /*
      * Recompute the cell style to match original implementation
      * It's unnecessary to recreate the $container contents here all the
-     * time, bit that's part of the original implementation. Not changing
+     * time, but that's part of the original implementation. Not changing
      * this now.
      */
     this.canvas.style.width = `${that.canvasWidth}px`;
     this.canvas.style.height = `${that.canvasHeight}px`;
     this.canvas.style.fontSize = `${that.elementSize / 3 / that.options.charSpacingFactor}px`;
+    this.canvas.style.lineHeight = `${that.elementSize / 3 / that.options.charSpacingFactor}px`;
+
     for (let i = 0; i < this.wordGrid.length * this.wordGrid[0].length; i++) {
       const cell = this.canvas.childNodes[i];
       cell.style.width = `${that.canvasWidth / this.wordGrid[0].length}px`;
       cell.style.height = `${that.canvasHeight / this.wordGrid.length}px`;
-      cell.style.paddingLeft = `${2 * marginResp}px`;
-      cell.style.paddingTop = `${offsetTop - ((that.$container.offset().top > that.elementSize * 0.75) ? 16 : 18)}px`;
+      cell.style.paddingLeft = `${that.elementSize / 4}px`;
+      cell.style.paddingTop = `${that.elementSize / 3}px`;
     }
 
     // Found words

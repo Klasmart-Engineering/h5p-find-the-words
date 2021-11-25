@@ -76,7 +76,7 @@ H5P.FindTheWords = (function ($, UI) {
       if (this.elementSize !== currentSize) {
         this.$puzzleContainer.empty();
         this.grid.appendTo(this.$puzzleContainer, this.elementSize );
-        this.grid.drawGrid(MARGIN);
+        this.grid.drawGrid();
 
         // If there are already marked elements on the grid mark them
         if (!this.grid.options.gridActive) {
@@ -305,7 +305,7 @@ H5P.FindTheWords = (function ($, UI) {
 
     this.grid = new FindTheWords.WordGrid(this.gridParams);
     this.grid.appendTo(this.$puzzleContainer, this.elementSize);
-    this.grid.drawGrid(MARGIN);
+    this.grid.drawGrid();
     this.grid.enableGrid();
     this.registerGridEvents();
 
@@ -449,7 +449,7 @@ H5P.FindTheWords = (function ($, UI) {
     this.$footerContainer.appendTo(this.$playArea);
     this.$playArea.appendTo(this.$container);
 
-    this.grid.drawGrid(MARGIN);
+    this.grid.drawGrid();
     this.registerGridEvents();
     this.trigger('resize');
   };
