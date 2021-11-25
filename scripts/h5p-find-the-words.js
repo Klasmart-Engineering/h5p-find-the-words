@@ -220,7 +220,7 @@ H5P.FindTheWords = (function ($, UI) {
       this.elementSize = gridElementStdSize;
     }
     else {
-      this.elementSize = ELEMENT_MAX_SIZE;
+      this.elementSize = ELEMENT_MIN_SIZE;
     }
 
     /*
