@@ -3,8 +3,8 @@
   "description": "Game to find a list of words in a given word grid",
   "machineName": "H5P.FindTheWords",
   "majorVersion": 1,
-  "minorVersion": 4,
-  "patchVersion": 4,
+  "minorVersion": 5,
+  "patchVersion": 0,
   "embedTypes": [
     "iframe"
   ],
@@ -45,9 +45,14 @@
       "minorVersion": 5
     },
     {
+      "machineName": "FontKidsLoop",
+      "majorVersion": 1,
+      "minorVersion": 0
+    },
+    {
       "machineName": "H5P.JoubelUI",
       "majorVersion": 1,
-      "minorVersion": 3
+      "minorVersion": 4
     }
   ]
 }
