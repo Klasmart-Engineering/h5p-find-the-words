@@ -54,5 +54,12 @@
       "majorVersion": 1,
       "minorVersion": 4
     }
+  ],
+  "editorDependencies": [
+    {
+      "machineName": "EditorFontKidsLoop",
+      "majorVersion": 1,
+      "minorVersion": 0
+    }
   ]
 }
